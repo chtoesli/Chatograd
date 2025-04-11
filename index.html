@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Подслушано — поиск городов</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --primary: #0088cc;
+            --bg: #f5f5f5;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --hint: #888888;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 16px;
+            margin: 0;
+        }
+        .search-box {
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            box-sizing: border-box;
+            background: var(--card-bg);
+        }
+        .city-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+        .city-name {
+            font-weight: 600;
+            margin: 0 0 4px 0;
+            color: var(--primary);
+        }
+        .city-region {
+            font-size: 14px;
+            color: var(--hint);
+            margin-bottom: 8px;
+        }
+        .recent-title {
+            font-size: 14px;
+            color: var(--hint);
+            margin: 24px 0 8px 4px;
+        }
+        .add-city-btn {
+            display: block;
+            text-align: center;
+            background: var(--primary);
+            color: white;
+            padding: 14px;
+            border-radius: 10px;
+            text-decoration: none;
+            margin-top: 24px;
+            font-weight: 500;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: var(--hint);
+        }
+        .error {
+            color: #ff3b30;
+            text-align: center;
+            padding: 16px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        .progress {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #121212;
+                --card-bg: #1e1e1e;
+                --text: #ffffff;
+                --hint: #aaaaaa;
+            }
+            .progress-bar {
+                background: #333;
+            }
+        }
+    </style>
+</head>
+<body>
+<h2>🏙️ Найдите свой город</h2>
+<input type="text" class="search-box" id="search" placeholder="Начните вводить город или регион..." autocomplete="off">
+
+<div id="recent-cities"></div>
+<div id="search-results"></div>
+<div id="loading" class="loading">
+    Загрузка данных...
+    <div class="progress-bar">
+        <div class="progress" id="progress"></div>
+    </div>
+</div>
+<div id="error" class="error" style="display: none;"></div>
+
+<a href="https://t.me/podslushano_suggestions" class="add-city-btn" id="add-city-btn">
+    ➕ Предложить новый город
+</a>
+
+<script>
+    const _0x54bd2b=_0x375f;(function(_0x15328c,_0x48d2b7){const _0x12a4dd=_0x375f,_0x2c3abb=_0x15328c();while(!![]){try{const _0x2e4862=-parseInt(_0x12a4dd(0x144))/0x1*(-parseInt(_0x12a4dd(0x12b))/0x2)+parseInt(_0x12a4dd(0x152))/0x3+parseInt(_0x12a4dd(0x125))/0x4+-parseInt(_0x12a4dd(0x102))/0x5*(parseInt(_0x12a4dd(0x12a))/0x6)+-parseInt(_0x12a4dd(0x116))/0x7+parseInt(_0x12a4dd(0x121))/0x8*(-parseInt(_0x12a4dd(0x14a))/0x9)+parseInt(_0x12a4dd(0x10b))/0xa;if(_0x2e4862===_0x48d2b7)break;else _0x2c3abb['push'](_0x2c3abb['shift']());}catch(_0x3434d8){_0x2c3abb['push'](_0x2c3abb['shift']());}}}(_0x1986,0xaec87));const _0x143980=(function(){let _0x1f7936=!![];return function(_0x287357,_0x363996){const _0x545ac0=_0x1f7936?function(){if(_0x363996){const _0x19c815=_0x363996['apply'](_0x287357,arguments);return _0x363996=null,_0x19c815;}}:function(){};return _0x1f7936=![],_0x545ac0;};}()),_0x259047=_0x143980(this,function(){const _0x172234=_0x375f;return _0x259047[_0x172234(0x147)]()[_0x172234(0x115)]('(((.+)+)+)+$')[_0x172234(0x147)]()[_0x172234(0x130)](_0x259047)[_0x172234(0x115)](_0x172234(0x124));});_0x259047();const _0x4ebb14=(function(){let _0x136e22=!![];return function(_0x4323ba,_0x1d799e){const _0x45c1e1=_0x136e22?function(){if(_0x1d799e){const _0x585a2c=_0x1d799e['apply'](_0x4323ba,arguments);return _0x1d799e=null,_0x585a2c;}}:function(){};return _0x136e22=![],_0x45c1e1;};}());(function(){_0x4ebb14(this,function(){const _0x50fd99=_0x375f,_0x86d1e8=new RegExp(_0x50fd99(0x12f)),_0x378f11=new RegExp(_0x50fd99(0x108),'i'),_0x46a266=_0x5f2a65('init');!_0x86d1e8[_0x50fd99(0x104)](_0x46a266+_0x50fd99(0x13e))||!_0x378f11[_0x50fd99(0x104)](_0x46a266+_0x50fd99(0xed))?_0x46a266('0'):_0x5f2a65();})();}());const CONFIG={'MAX_CITY_LENGTH':0x64,'MAX_REGION_LENGTH':0x64,'MAX_JSON_SIZE':0xa*0x400*0x400,'MAX_RESULTS':0x64,'CACHE_KEY':_0x54bd2b(0x127),'CACHE_TIME':0x36ee80},tg=window['Telegram']['WebApp'];tg['expand']();function showError(_0x99c701){const _0x682515=_0x54bd2b,_0x59f35e=document['getElementById'](_0x682515(0x14d));_0x59f35e['textContent']=_0x99c701,_0x59f35e['style']['display']=_0x682515(0x109),document[_0x682515(0x13d)](_0x682515(0x150))[_0x682515(0x135)][_0x682515(0x148)]=_0x682515(0xf1);}function escapeHtml(_0x251dfd){const _0x3052a2=_0x54bd2b;if(typeof _0x251dfd!=='string')return'';return _0x251dfd[_0x3052a2(0xfc)]>CONFIG[_0x3052a2(0xe8)]&&(_0x251dfd=_0x251dfd['substring'](0x0,CONFIG[_0x3052a2(0xe8)])+'...'),_0x251dfd[_0x3052a2(0xf7)](/&/g,'&amp;')[_0x3052a2(0xf7)](/</g,_0x3052a2(0x112))[_0x3052a2(0xf7)](/>/g,_0x3052a2(0x120))[_0x3052a2(0xf7)](/"/g,_0x3052a2(0x14f))['replace'](/'/g,_0x3052a2(0x103));}function _0x1986(){const _0x362bcf=['Ошибка\x20HTTP:\x20','time','<div\x20class=\x22recent-title\x22>Недавно\x20просмотренные:</div>','DOMContentLoaded','startsWith','join','includes','map','CACHE_KEY','&gt;','4312CyOALT','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','</b></div>','(((.+)+)+)+$','274760cWftzY','getItem','cities_cache_v7','progress','now','11226bhSOSB','38JAAEJW','click','push','status','function\x20*\x5c(\x20*\x5c)','constructor','Центр','Ошибка\x20инициализации:','while\x20(true)\x20{}','Cities\x20load','style','stringify','action','parse','search-results','gger',')\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22city-name\x22>','addEventListener','getElementById','chain','utf-8','target','width','<div\x20class=\x22city-region\x22>','call','29609TzEYzD','recent-cities','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22city-card\x22\x20onclick=\x22openCity(\x27','toString','display','\x27,\x20','11781LmZVmd','Не\x20удалось\x20загрузить\x20данные.\x20Попробуйте\x20позже.','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','error','body','&quot;','loading','get','3776346LqlvqT','city','MAX_CITY_LENGTH','set','<div\x20class=\x22error\x22>Ошибка\x20отображения\x20результатов</div>','Ошибка\x20при\x20выполнении\x20поиска','innerHTML','input','decode','Ошибка\x20загрузки:','cities.json?t=','none','?comment=1','counter','apply','unshift','Ошибка\x20отображения:','replace','MAX_RESULTS','https://t.me/podslushano_main/','Ошибка\x20поиска:','value','length','preventDefault','</div>','federalDistrict','region','openTelegramLink','3545tQkbOG','&#039;','test','href','slice','debu','\x5c+\x5c+\x20*(?:[a-zA-Z_$][0-9a-zA-Z_$]*)','block','toLowerCase','21877330oysZtx','object','Не\x20удалось\x20открыть\x20город','<div\x20class=\x22loading\x22>Ничего\x20не\x20найдено</div>','timeEnd','CACHE_TIME','filter','&lt;','Content-Length','<div\x20class=\x22city-region\x22><b>','search','9308425cQXXxG'];_0x1986=function(){return _0x362bcf;};return _0x1986();}async function loadCities(){const _0x5cf9a3=_0x54bd2b;try{const _0x43be7a=localStorage[_0x5cf9a3(0x126)](CONFIG[_0x5cf9a3(0x11f)]);if(_0x43be7a){const {data:_0x4b1b28,timestamp:_0x324f38}=JSON[_0x5cf9a3(0x138)](_0x43be7a);if(Date[_0x5cf9a3(0x129)]()-_0x324f38<CONFIG[_0x5cf9a3(0x110)])return _0x4b1b28;}console[_0x5cf9a3(0x118)](_0x5cf9a3(0x134));const _0x1cd947=await fetch(_0x5cf9a3(0xf0)+Date['now']());if(!_0x1cd947['ok'])throw new Error(_0x5cf9a3(0x117)+_0x1cd947[_0x5cf9a3(0x12e)]);if(!_0x1cd947[_0x5cf9a3(0x14e)])throw new Error('Невозможно\x20прочитать\x20поток\x20данных');const _0x55ad02=+_0x1cd947['headers'][_0x5cf9a3(0x151)](_0x5cf9a3(0x113));if(_0x55ad02>CONFIG['MAX_JSON_SIZE'])throw new Error('Файл\x20слишком\x20большой');const _0x3b0dc4=_0x1cd947['body']['getReader']();let _0x304ea4=0x0,_0x42aff2=[];while(!![]){const {done:_0x4e237c,value:_0x3b3b00}=await _0x3b0dc4['read']();if(_0x4e237c)break;_0x42aff2['push'](_0x3b3b00),_0x304ea4+=_0x3b3b00[_0x5cf9a3(0xfc)];if(_0x55ad02){const _0x3042c8=Math['round'](_0x304ea4/_0x55ad02*0x64);document[_0x5cf9a3(0x13d)](_0x5cf9a3(0x128))[_0x5cf9a3(0x135)][_0x5cf9a3(0x141)]=_0x3042c8+'%';}}const _0xab3dbd=new Uint8Array(_0x304ea4);let _0x182425=0x0;for(let _0x566884 of _0x42aff2){_0xab3dbd[_0x5cf9a3(0xe9)](_0x566884,_0x182425),_0x182425+=_0x566884[_0x5cf9a3(0xfc)];}const _0x557439=JSON['parse'](new TextDecoder(_0x5cf9a3(0x13f))[_0x5cf9a3(0xee)](_0xab3dbd));console[_0x5cf9a3(0x10f)](_0x5cf9a3(0x134));if(!_0x557439||typeof _0x557439!==_0x5cf9a3(0x10c))throw new Error('Некорректный\x20формат\x20данных');return localStorage['setItem'](CONFIG[_0x5cf9a3(0x11f)],JSON['stringify']({'data':_0x557439,'timestamp':Date['now']()})),_0x557439;}catch(_0x7ee9e5){return console[_0x5cf9a3(0x14d)](_0x5cf9a3(0xef),_0x7ee9e5),showError(_0x5cf9a3(0x14b)),getFallbackData();}}function getFallbackData(){const _0x36931d=_0x54bd2b;return{'Москва':{'id':0x7b,'region':'Московская\x20область','federalDistrict':'Центр'},'Воронеж':{'id':0x1c8,'region':'Воронежская\x20область','federalDistrict':_0x36931d(0x131)}};}function searchCities(_0x2c4260,_0x13c2c6){const _0x5202bb=_0x54bd2b;try{if(!_0x13c2c6||_0x13c2c6[_0x5202bb(0xfc)]<0x2||!_0x2c4260)return[];const _0x52dcec=_0x13c2c6[_0x5202bb(0x10a)](),_0x4fc0a5=[];for(const _0x284830 in _0x2c4260){if(_0x284830[_0x5202bb(0x10a)]()[_0x5202bb(0x11b)](_0x52dcec)){_0x4fc0a5['push'](createCityItem(_0x284830,_0x2c4260[_0x284830]));if(_0x4fc0a5[_0x5202bb(0xfc)]>=CONFIG[_0x5202bb(0xf8)])break;}}if(_0x4fc0a5[_0x5202bb(0xfc)]<CONFIG[_0x5202bb(0xf8)])for(const _0x35f09f in _0x2c4260){if(!_0x35f09f[_0x5202bb(0x10a)]()['startsWith'](_0x52dcec)&&_0x35f09f['toLowerCase']()[_0x5202bb(0x11d)](_0x52dcec)){_0x4fc0a5[_0x5202bb(0x12d)](createCityItem(_0x35f09f,_0x2c4260[_0x35f09f]));if(_0x4fc0a5[_0x5202bb(0xfc)]>=CONFIG[_0x5202bb(0xf8)])break;}}return _0x4fc0a5;}catch(_0x16e30e){return console['error'](_0x5202bb(0xfa),_0x16e30e),[];}}function createCityItem(_0x47f811,_0x387938){const _0x330a26=_0x54bd2b;return{'city':_0x47f811,'region':_0x387938[_0x330a26(0x100)],'federalDistrict':_0x387938[_0x330a26(0xff)],'id':_0x387938['id']};}function displayResults(_0x3b811a,_0x8b9b89){const _0x397773=_0x54bd2b,_0x5bdf3e=document[_0x397773(0x13d)](_0x8b9b89);if(!_0x5bdf3e)return;if(!_0x3b811a||_0x3b811a[_0x397773(0xfc)]===0x0){_0x5bdf3e[_0x397773(0xec)]=_0x8b9b89==='search-results'?_0x397773(0x10e):'';return;}let _0x140042=_0x8b9b89===_0x397773(0x145)?_0x397773(0x119):'';try{_0x140042+=_0x3b811a[_0x397773(0x11e)](_0x192611=>_0x397773(0x146)+escapeHtml(_0x192611[_0x397773(0xe7)])+_0x397773(0x149)+_0x192611['id']+_0x397773(0x13b)+escapeHtml(_0x192611[_0x397773(0xe7)])+'</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+(_0x192611[_0x397773(0x100)]?_0x397773(0x114)+escapeHtml(_0x192611['region'])+_0x397773(0x123):'')+_0x397773(0x122)+(_0x192611[_0x397773(0x100)]?_0x397773(0x142)+escapeHtml(_0x192611['federalDistrict'])+_0x397773(0xfe):'')+_0x397773(0x14c))[_0x397773(0x11c)]('');}catch(_0xb9046){console[_0x397773(0x14d)](_0x397773(0xf6),_0xb9046),_0x140042=_0x397773(0xea);}_0x5bdf3e[_0x397773(0xec)]=_0x140042;}function getHistory(){const _0x207eac=_0x54bd2b;try{const _0x4a2e70=localStorage['getItem']('cities_history');return _0x4a2e70?JSON[_0x207eac(0x138)](_0x4a2e70):[];}catch{return[];}}function addToHistory(_0x43f9bb,_0x38bfb5){const _0x9728c1=_0x54bd2b;try{let _0x4b3c2d=getHistory();_0x4b3c2d=_0x4b3c2d[_0x9728c1(0x111)](_0xdfd176=>_0xdfd176[_0x9728c1(0xe7)]!==_0x43f9bb),_0x4b3c2d[_0x9728c1(0xf5)]({'city':_0x43f9bb,'id':_0x38bfb5,'timestamp':Date[_0x9728c1(0x129)]()}),_0x4b3c2d=_0x4b3c2d[_0x9728c1(0x106)](0x0,0xa),localStorage['setItem']('cities_history',JSON[_0x9728c1(0x136)](_0x4b3c2d));}catch(_0x3c5922){console[_0x9728c1(0x14d)]('Ошибка\x20сохранения\x20истории:',_0x3c5922);}}function _0x375f(_0xb6c1f,_0xe6515d){const _0x5a7214=_0x1986();return _0x375f=function(_0x5f2a65,_0x4ebb14){_0x5f2a65=_0x5f2a65-0xe7;let _0x106289=_0x5a7214[_0x5f2a65];return _0x106289;},_0x375f(_0xb6c1f,_0xe6515d);}function openCity(_0x537e82,_0x24254b){const _0x36a10b=_0x54bd2b;try{addToHistory(_0x537e82,_0x24254b),tg['openTelegramLink'](_0x36a10b(0xf9)+_0x24254b+_0x36a10b(0xf2));}catch(_0x58c377){console[_0x36a10b(0x14d)]('Ошибка\x20открытия\x20города:',_0x58c377),showError(_0x36a10b(0x10d));}}function debounce(_0x2eff97,_0x89ae80){let _0x151e8e;return function(){const _0x295863=this,_0x7103e8=arguments;clearTimeout(_0x151e8e),_0x151e8e=setTimeout(()=>{_0x2eff97['apply'](_0x295863,_0x7103e8);},_0x89ae80);};}async function initApp(){const _0x1a28d1=_0x54bd2b;try{document['getElementById'](_0x1a28d1(0x150))[_0x1a28d1(0x135)][_0x1a28d1(0x148)]=_0x1a28d1(0x109),document['getElementById'](_0x1a28d1(0x14d))[_0x1a28d1(0x135)]['display']=_0x1a28d1(0xf1);const _0xc11252=await loadCities(),_0x1664c7=getHistory();_0x1664c7[_0x1a28d1(0xfc)]>0x0&&displayResults(_0x1664c7[_0x1a28d1(0x11e)](_0x175c35=>({'city':_0x175c35[_0x1a28d1(0xe7)],'region':'Недавно\x20просмотренные','id':_0x175c35['id']})),_0x1a28d1(0x145));const _0xad3a67=debounce(_0x31d90c=>{const _0x574b6a=_0x1a28d1;try{if(_0x31d90c&&_0x31d90c[_0x574b6a(0xfc)]>=0x2){const _0x3ab72b=searchCities(_0xc11252,_0x31d90c);displayResults(_0x3ab72b,_0x574b6a(0x139));}else document['getElementById'](_0x574b6a(0x139))['innerHTML']='';}catch(_0x10c3ab){console[_0x574b6a(0x14d)](_0x574b6a(0xfa),_0x10c3ab),showError(_0x574b6a(0xeb));}},0x12c);document[_0x1a28d1(0x13d)]('search')[_0x1a28d1(0x13c)](_0x1a28d1(0xed),_0x43aa10=>{const _0x5bc281=_0x1a28d1;_0xad3a67(_0x43aa10[_0x5bc281(0x140)][_0x5bc281(0xfb)]['trim']());}),document[_0x1a28d1(0x13d)]('add-city-btn')['addEventListener'](_0x1a28d1(0x12c),_0x2a5075=>{const _0x3423a2=_0x1a28d1;_0x2a5075[_0x3423a2(0xfd)](),tg[_0x3423a2(0x101)](_0x2a5075[_0x3423a2(0x140)][_0x3423a2(0x105)]);}),document['getElementById'](_0x1a28d1(0x150))['style']['display']='none';}catch(_0x40b5c8){console['error'](_0x1a28d1(0x132),_0x40b5c8),showError('Ошибка\x20загрузки\x20приложения');}}document[_0x54bd2b(0x13c)](_0x54bd2b(0x11a),initApp);function _0x5f2a65(_0x225075){function _0x52617f(_0x2654a1){const _0x21a23e=_0x375f;if(typeof _0x2654a1==='string')return function(_0x18947e){}[_0x21a23e(0x130)](_0x21a23e(0x133))['apply'](_0x21a23e(0xf3));else(''+_0x2654a1/_0x2654a1)[_0x21a23e(0xfc)]!==0x1||_0x2654a1%0x14===0x0?function(){return!![];}[_0x21a23e(0x130)](_0x21a23e(0x107)+'gger')[_0x21a23e(0x143)](_0x21a23e(0x137)):function(){return![];}[_0x21a23e(0x130)](_0x21a23e(0x107)+_0x21a23e(0x13a))[_0x21a23e(0xf4)]('stateObject');_0x52617f(++_0x2654a1);}try{if(_0x225075)return _0x52617f;else _0x52617f(0x0);}catch(_0x12f002){}}
+</script>
+</body>
+</html>
